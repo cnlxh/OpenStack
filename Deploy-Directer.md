@@ -88,7 +88,10 @@ sudo openstack tripleo container image prepare default \
 添加用户名密码用于拉取镜像
 
 ```bash
+ContainerImageRegistryLogin: true 
   ContainerImageRegistryCredentials:
+    registry.redhat.io:
+      "username": "password"
     quay.io:
       my_username: my_password
 ```
