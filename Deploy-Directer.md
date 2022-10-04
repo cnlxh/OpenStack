@@ -172,3 +172,14 @@ sudo chown stack:stack /home/stack/ -R
 ```bash
 openstack undercloud install
 ```
+
+需要注意的是，epel中的Hiera可能会导致无法正常安装，请确保epel仓库中排除这个包
+
+```bash
+[epel]
+name=epel
+baseurl=xxx
+enabled=1
+gpgcheck=0
+exclude=hiera*
+```
