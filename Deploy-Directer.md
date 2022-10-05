@@ -8,9 +8,9 @@
 
 # 系统平台
 
-| CPU | 内存  | 系统版本     | OpenStack |
-| --- | --- | -------- | --------- |
-| 8C  | 32G | RHEL 8.4 | Yoga      |
+| CPU | 内存  | 系统版本            | OpenStack |
+| --- | --- | --------------- | --------- |
+| 8C  | 32G | CentOS 8 Stream | Yoga      |
 
 # 网络规划
 
@@ -74,7 +74,24 @@ EOF'
 # 安装 director 软件包
 
 ```bash
-sudo dnf install -y python3-tripleoclient
+cat > /etc/yum.repos.d/tripleo.repo <<EOF
+[tripleo]
+name=tripleo
+baseurl=https://trunk.rdoproject.org/centos8-yoga/component/tripleo/current/
+enabled=1
+gpgcheck=0
+EOF
+```
+
+```bash
+yum install python3-tripleo-repos
+tripleo-repos -b yoga current
+tripleo-repos -b yoga current ceph
+dnf install -y python3-tripleoclient ceph-ansible
+```
+
+```bash
+sudo dnf install -y python3-tripleoclient ceph-ansible
 ```
 
 # 准备容器镜像文件
@@ -146,8 +163,6 @@ dhcp_start = 10.0.0.20
 dhcp_end = 10.0.0.200
 inspection_iprange = 10.0.0.210,10.0.0.250
 gateway = 10.0.0.10
-masquerade = true
-masquerade_network = 10.0.0.0/24
 ```
 
 # 定义admin密码
@@ -171,15 +186,4 @@ sudo chown stack:stack /home/stack/ -R
 
 ```bash
 openstack undercloud install
-```
-
-需要注意的是，epel中的Hiera可能会导致无法正常安装，请确保epel仓库中排除这个包
-
-```bash
-[epel]
-name=epel
-baseurl=xxx
-enabled=1
-gpgcheck=0
-exclude=hiera*
 ```
