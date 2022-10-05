@@ -67,27 +67,27 @@ mkdir ~/templates
 
 ```bash
 sudo bash -c 'cat >> /etc/hosts <<EOF
-172.16.50.10 director.xiaohui.cn director
+127.0.0.1 director.xiaohui.cn director
 EOF'
 ```
 
 # 安装 director 软件包
 
 ```bash
-cat > /etc/yum.repos.d/tripleo.repo <<EOF
+sudo bash -c 'cat > /etc/yum.repos.d/tripleo.repo <<EOF
 [tripleo]
 name=tripleo
 baseurl=https://trunk.rdoproject.org/centos8-yoga/component/tripleo/current/
 enabled=1
 gpgcheck=0
-EOF
+EOF'
 ```
 
 ```bash
-yum install python3-tripleo-repos
-tripleo-repos -b yoga current
-tripleo-repos -b yoga current ceph
-dnf install -y python3-tripleoclient ceph-ansible
+sudo yum install python3-tripleo-repos -y
+sudo tripleo-repos -b yoga current
+sudo tripleo-repos -b yoga current ceph
+sudo dnf install -y python3-tripleoclient ceph-ansible
 ```
 
 ```bash
@@ -186,4 +186,54 @@ sudo chown stack:stack /home/stack/ -R
 
 ```bash
 openstack undercloud install
+```
+
+# 配置Overcloud
+
+从下面的网址下载镜像
+
+```textile
+https://buildlogs.centos.org/centos/7/cloud/x86_64/tripleo_images/
+```
+
+## 上传镜像
+
+将下载好的镜像放到images目录里，然后把.tar解压
+
+```bash
+openstack overcloud image upload
+```
+
+## 注册节点
+
+由于没有物理机，现在模拟一下BMC
+
+### 安装BMC
+
+```bash
+yum -y install python3-pip python3-devel gcc libvirt-devel ipmitool
+pip3 install --upgrade pip
+pip3 install virtualbmc
+```
+
+```bash
+python -m pip install vbmc4vsphere
+```
+
+```json
+{
+  "nodes": [
+    {
+      "pm_type": "pxe_ipmitool",
+      "mac": [
+        "00:50:56:94:54:ab"
+      ],
+      "pm_user": "admin",
+      "pm_password": "lixiaohui!",
+      "pm_addr": "192.168.31.105",
+      "pm_port": "6230",
+      "name": "Node01"
+    }
+  ]
+}
 ```
