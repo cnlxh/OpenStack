@@ -82,7 +82,7 @@ EOF
 
 下面是我修改的multinode清单
 
-```ini
+```textile
 [control]
 control1 ansible_become=true
 control2 ansible_become=true
@@ -170,5 +170,3 @@ kolla-ansible post-deploy
 ```bash
 /usr/local/share/kolla-ansible/init-runonce
 ```
-
-
