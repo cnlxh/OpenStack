@@ -38,7 +38,8 @@ EOF
 ## 安装先决条件
 
 ```bash
-dnf install python3-devel libffi-devel gcc openssl-devel python3-libselinux python3-pip git sshpass wget vim bash-completion -y
+dnf install python3-devel libffi-devel gcc openssl-devel python3-libselinux python3-pip git sshpass wget vim bash-completion chrony -y
+systemctl enable chronyd --now 
 pip3 install -U pip
 pip3 install ansible -U pip
 ```
