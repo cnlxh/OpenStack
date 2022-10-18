@@ -1,12 +1,12 @@
 # 环境介绍
 
-| 角色                          | 系统              | 版本   | 硬件配置           | 最小配置需求       |
-| --------------------------- | --------------- | ---- | -------------- | ------------ |
-| controller\|neutron\|cinder | CentOS Stream 8 | Yoga | 16C\|32G\|2NIC | 4C\|8G\|2NIC |
-| controller\|neutron\|cinder | CentOS Stream 8 | Yoga | 16C\|32G\|2NIC | 4C\|8G\|2NIC |
-| controller\|neutron\|cinder | CentOS Stream 8 | Yoga | 16C\|32G\|2NIC | 4C\|8G\|2NIC |
-| Compute                     | CentOS Stream 8 | Yoga | 16C\|32G\|2NIC | 4C\|8G\|2NIC |
-| Compute                     | CentOS Stream 8 | Yoga | 16C\|32G\|2NIC | 4C\|8G\|2NIC |
+| 角色                          | 系统              | 版本   | 硬件配置           | 最小配置需求       | 备注                           |
+| --------------------------- | --------------- | ---- | -------------- | ------------ | ---------------------------- |
+| controller\|neutron\|cinder | CentOS Stream 8 | Yoga | 16C\|32G\|2NIC | 4C\|8G\|2NIC | 为Cinder额外增加了一个500G的盘/dev/sdb |
+| controller\|neutron\|cinder | CentOS Stream 8 | Yoga | 16C\|32G\|2NIC | 4C\|8G\|2NIC | 为Cinder额外增加了一个500G的盘/dev/sdb |
+| controller\|neutron\|cinder | CentOS Stream 8 | Yoga | 16C\|32G\|2NIC | 4C\|8G\|2NIC | 为Cinder额外增加了一个500G的盘/dev/sdb |
+| Compute                     | CentOS Stream 8 | Yoga | 16C\|32G\|2NIC | 4C\|8G\|2NIC |                              |
+| Compute                     | CentOS Stream 8 | Yoga | 16C\|32G\|2NIC | 4C\|8G\|2NIC |                              |
 
 # 设置主机名
 
@@ -38,10 +38,27 @@ EOF
 ## 安装先决条件
 
 ```bash
-dnf install python3-devel libffi-devel gcc openssl-devel python3-libselinux python3-pip git sshpass wget vim bash-completion chrony -y
-systemctl enable chronyd --now 
+dnf install python3-devel libffi-devel gcc openssl-devel python3-libselinux python3-pip git sshpass wget vim bash-completion -y
 pip3 install -U pip
 pip3 install ansible -U pip
+```
+
+## 完成时间同步
+
+```bash
+for server in  kolla control1 control2 control3 compute1 compute2; \
+do sshpass -p 1 ssh -A -g -o StrictHostKeyChecking=no root@$server \
+dnf install chrony -y;ssh -A -g -o StrictHostKeyChecking=no root@$server systemctl enable chronyd --now ;done
+```
+
+## 为Cinder创建VG
+
+这一步仅限于稍后将cinder后端设置为lvm时才需要做
+
+```bash
+for server in control1 control2 control3; \
+do sshpass -p 1 ssh -A -g -o StrictHostKeyChecking=no root@$server \
+vgcreate cinder-volumes /dev/sdb;done
 ```
 
 ## 安装kolla
