@@ -38,6 +38,7 @@ cat > /etc/hosts <<EOF
 172.16.50.103 control3
 172.16.50.104 compute1
 172.16.50.105 compute2
+172.16.50.253 registry.xiaohui.cn
 EOF
 ```
 
@@ -195,4 +196,21 @@ kolla-ansible post-deploy
 
 ```bash
 /usr/local/share/kolla-ansible/init-runonce
+```
+
+# 上传镜像到私有仓库
+
+需在每个节点执行，以便于将所有镜像都上传
+
+```bash
+tag=yoga
+images=`docker images | sed 1d | cut -d ' ' -f1`
+remoteurl=registry.xiaohui.cn
+for localimage in $images;do docker tag $localimage:$tag "$remoteurl/library/`echo $localimage | cut -d ' ' -f1 | sed 's/quay.io\///'`:$tag";done 
+
+docker login registry.xiaohui.cn -u admin -p admin 
+privateimage=`docker images | grep registry.xiaohui.cn | cut -d ' ' -f1`
+for image in $privateimage;do docker push $image:$tag;done
+
+
 ```
