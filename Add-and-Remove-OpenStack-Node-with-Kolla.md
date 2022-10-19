@@ -215,7 +215,7 @@ openstack server list --all-projects
 ## 停止服务
 
 ```bash
- kolla-ansible -i ./multinode stop --yes-i-really-really-mean-it -limit compute2
+ kolla-ansible -i ./multinode stop --yes-i-really-really-mean-it --limit compute2
 ```
 
 ## 从主机清单删除
