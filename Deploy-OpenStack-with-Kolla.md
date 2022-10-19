@@ -181,7 +181,7 @@ sed -i '/enable_cinder:.*/a\enable_cinder_backend_lvm: "yes"'  /etc/kolla/global
 你必须将私有仓库所使用的https CA证书分发给所有openstack节点，并使这些节点信任证书，不然就需要docker_registry_insecure：yes参数
 
 ```bash
-sed -i '/^#docker_registry:/a\docker_registry: registry.xiaohui.cn'  /etc/kolla/globals.yml
+sed -i '/^#docker_registry:/a\docker_registry: registry.xiaohui.cn/library'  /etc/kolla/globals.yml
 sed -i '/^#docker_registry_username:/a\docker_registry_username: admin'  /etc/kolla/globals.yml
 sed -i 's/^docker_registry_password:.*/docker_registry_password: admin/'  /etc/kolla/passwords.yml
 ```
@@ -224,8 +224,6 @@ openstack_cacert: "/etc/ssl/certs/ca-certificates.crt"
 # centos CA证书位置
 openstack_cacert: "/etc/pki/tls/certs/ca-bundle.crt"
 ```
-
-
 
 # OpenStack 部署
 
