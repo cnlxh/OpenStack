@@ -281,5 +281,4 @@ openstack service list
 | f8cd9e00923b498f8e0bdab1aaa818b7 | keystone    | identity       |
 | fff1cf066b7e448babcb28eb6ec3aa66 | glance      | image          |
 +----------------------------------+-------------+----------------+
-
 ```
