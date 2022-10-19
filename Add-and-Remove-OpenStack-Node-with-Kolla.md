@@ -181,7 +181,7 @@ kolla-ansible -i ./multinode deploy --limit control
 openstack network agent list --host control2 -f value -c ID | while read id; do
 openstack network agent delete $id
 done
-openstack compute service list --os-compute-api-version 2.53 --host <host> -f value -c ID | while read id; do
+openstack compute service list --os-compute-api-version 2.53 --host control2 -f value -c ID | while read id; do
 openstack compute service delete --os-compute-api-version 2.53 $id
 done
 ```
