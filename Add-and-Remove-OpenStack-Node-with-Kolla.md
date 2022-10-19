@@ -215,7 +215,7 @@ openstack server list --all-projects
 ## 停止服务
 
 ```bash
- kolla-ansible -i <inventory> stop --yes-i-really-really-mean-it -limit compute2
+ kolla-ansible -i ./multinode stop --yes-i-really-really-mean-it -limit compute2
 ```
 
 ## 从主机清单删除
@@ -238,5 +238,3 @@ openstack compute service list --os-compute-api-version 2.53 --host compute2 -f 
 openstack compute service delete --os-compute-api-version 2.53 $id
 done
 ```
-
-
