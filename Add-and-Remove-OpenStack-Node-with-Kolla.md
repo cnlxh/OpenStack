@@ -202,7 +202,7 @@ openstack compute service set compute2 nova-compute --disable
 
 ```bash
 openstack server list --all-projects --host compute2 -f value -c ID | while read server; do
-openstack server migrate --live-migration $server
+openstack server migrate --block-migration --live-migration --os-compute-api-version 2.30 $server
 done
 ```
 
