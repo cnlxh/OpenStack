@@ -238,6 +238,23 @@ kolla-ansible -i ./multinode deploy
 kolla-ansible post-deploy
 ```
 
+# 添加local网络支持
+
+默认的kolla部署不支持local类型的网络，创建local类型时会报错如下：
+
+```textile
+network_type value 'local' not supported.
+```
+
+解决如下：
+
+需要在所有网络节点都修改，一般网络节点并置在control节点，所以需要在所有control节点修改
+
+```bash
+sed -i 's/^type_drivers.*/&,local/' /etc/kolla/neutron-server/ml2_conf.ini
+docker restart neutron_server
+```
+
 # 创建样例资源
 
 执行后，将会创建样例网络、镜像等资源，请勿用于生产环境
