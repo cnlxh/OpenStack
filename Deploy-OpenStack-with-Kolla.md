@@ -57,7 +57,7 @@ pip3 install ansible -U pip
 ```bash
 for server in  kolla control1 control2 control3 compute1 compute2; \
 do sshpass -p 1 ssh -A -g -o StrictHostKeyChecking=no root@$server \
-dnf install chrony -y;ssh -A -g -o StrictHostKeyChecking=no root@$server systemctl enable chronyd --now ;done
+dnf install chrony -y;sshpass -p 1 ssh -A -g -o StrictHostKeyChecking=no root@$server systemctl enable chronyd --now ;done
 ```
 
 ## 为Cinder创建VG
@@ -176,6 +176,57 @@ sed -i 's/#enable_cinder: .*/enable_cinder: "yes"/'  /etc/kolla/globals.yml
 sed -i '/enable_cinder:.*/a\enable_cinder_backend_lvm: "yes"'  /etc/kolla/globals.yml
 ```
 
+如果你已经在私有容器仓库下载好了镜像，可以加上以下几个参数
+
+你必须将私有仓库所使用的https CA证书分发给所有openstack节点，并使这些节点信任证书，不然就需要docker_registry_insecure：yes参数
+
+```bash
+sed -i '/^#docker_registry:/a\docker_registry: registry.xiaohui.cn'  /etc/kolla/globals.yml
+sed -i '/^#docker_registry_username:/a\docker_registry_username: admin'  /etc/kolla/globals.yml
+sed -i 's/^docker_registry_password:.*/docker_registry_password: admin/'  /etc/kolla/passwords.yml
+```
+
+## 常见参数介绍(可选)
+
+可以用如下方法设置内外API的地址
+
+```bash
+kolla_internal_vip_address: "10.10.10.254"
+network_interface: "eth0"
+kolla_external_vip_address: "10.10.20.254"
+kolla_external_vip_interface: "eth1"
+```
+
+使用FQDN规范互联网寻址
+
+```bash
+kolla_internal_fqdn: inside.mykolla.example.net
+kolla_external_fqdn: mykolla.example.net
+```
+
+在/etc/kolla/config/nova/myhost/nova.conf中修改CPU和内存分配比率
+
+```ini
+[DEFAULT]
+cpu_allocation_ratio = 16.0
+ram_allocation_ratio = 5.0
+```
+
+要在为外部、内部和后端 API 启用 TLS 的情况下部署 OpenStack，请在`globals.yml` 中配置以下内容：
+
+```bash
+kolla_enable_tls_internal: "yes"
+kolla_enable_tls_external: "yes"
+kolla_enable_tls_backend: "yes"
+kolla_copy_ca_into_containers: "yes" 
+# ubuntu CA证书位置
+openstack_cacert: "/etc/ssl/certs/ca-certificates.crt"
+# centos CA证书位置
+openstack_cacert: "/etc/pki/tls/certs/ca-bundle.crt"
+```
+
+
+
 # OpenStack 部署
 
 ```bash
@@ -205,12 +256,10 @@ kolla-ansible post-deploy
 ```bash
 tag=yoga
 images=`docker images | sed 1d | cut -d ' ' -f1`
-remoteurl=registry.xiaohui.cn
-for localimage in $images;do docker tag $localimage:$tag "$remoteurl/library/`echo $localimage | cut -d ' ' -f1 | sed 's/quay.io\///'`:$tag";done 
+remoteurl=registry.xiaohui.cn/library
+for localimage in $images;do docker tag $localimage:$tag "$remoteurl/`echo $localimage | cut -d ' ' -f1 | sed 's/quay.io\///'`:$tag";done 
 
 docker login registry.xiaohui.cn -u admin -p admin 
 privateimage=`docker images | grep registry.xiaohui.cn | cut -d ' ' -f1`
 for image in $privateimage;do docker push $image:$tag;done
-
-
 ```
