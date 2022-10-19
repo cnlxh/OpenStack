@@ -176,7 +176,7 @@ sed -i 's/#enable_cinder: .*/enable_cinder: "yes"/'  /etc/kolla/globals.yml
 sed -i '/enable_cinder:.*/a\enable_cinder_backend_lvm: "yes"'  /etc/kolla/globals.yml
 ```
 
-如果你已经在私有容器仓库下载好了镜像，可以加上以下几个参数
+如果你已经在私有容器仓库下载好了镜像，可以加上以下几个参数，不然你跳过私有仓库部分，用在线完成安装，然后按照稍后的上传步骤上传以备下次使用
 
 你必须将私有仓库所使用的https CA证书分发给所有openstack节点，并使这些节点信任证书，不然就需要docker_registry_insecure：yes参数
 
@@ -234,8 +234,7 @@ kolla-ansible -i ./multinode bootstrap-servers
 kolla-ansible -i ./multinode prechecks
 # 真实的完成最终部署
 kolla-ansible -i ./multinode deploy
-# 生成凭据文件,将产生/etc/kolla/clouds.yaml文件，可以复制到/etc/openstack或~/.config/openstack，也 \
-# 可以设置OS_CLIENT_CONFIG_FILE环境变量使用
+# 生成凭据文件,将产生/etc/kolla/admin-openrc.sh文件
 kolla-ansible post-deploy
 ```
 
@@ -260,4 +259,27 @@ for localimage in $images;do docker tag $localimage:$tag "$remoteurl/`echo $loca
 docker login registry.xiaohui.cn -u admin -p admin 
 privateimage=`docker images | grep registry.xiaohui.cn | cut -d ' ' -f1`
 for image in $privateimage;do docker push $image:$tag;done
+```
+
+# 部署客户端
+
+```bash
+pip3 install python-openstackclient
+source /etc/kolla/admin-openrc.sh
+openstack service list
+
++----------------------------------+-------------+----------------+
+| ID                               | Name        | Type           |
++----------------------------------+-------------+----------------+
+| 0c8d90be2ce441cfa69f48fa35aac66b | neutron     | network        |
+| 4fc07ae1d4ac45ba80793ba6bba7495b | cinderv3    | volumev3       |
+| 50af95a65b3f424f9cf82876e6b6f34b | heat        | orchestration  |
+| 57bd175e9b7146398b60f0f7aae3c23a | nova        | compute        |
+| 85e1c9b035d44d86a50e54faa46b6d0d | placement   | placement      |
+| d59544dc6069432993ef83a1a14b902b | heat-cfn    | cloudformation |
+| ed8b173da8964adc9bcc04f0154cb0a9 | nova_legacy | compute_legacy |
+| f8cd9e00923b498f8e0bdab1aaa818b7 | keystone    | identity       |
+| fff1cf066b7e448babcb28eb6ec3aa66 | glance      | image          |
++----------------------------------+-------------+----------------+
+
 ```
