@@ -228,7 +228,7 @@ compute1 ansible_become=true
 compute3 ansible_become=true
 ```
 
-# 清理服务
+## 清理服务
 
 ```bash
 openstack network agent list --host compute2 -f value -c ID | while read id; do
