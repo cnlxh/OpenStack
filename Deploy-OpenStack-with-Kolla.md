@@ -299,3 +299,13 @@ openstack service list
 | fff1cf066b7e448babcb28eb6ec3aa66 | glance      | image          |
 +----------------------------------+-------------+----------------+
 ```
+
+# 处理OpenStack重启服务异常
+
+OpenStack 节点全部重启或机房断电之后，会导致mariadb集群异常，这将导致mariadb的容器无限重启，永远无法就绪，后果就是其他需要数据库的容器也用于无法healthy，此处我们可以用kolla的mariadb恢复功能来实现数据库集群状态同步工作
+
+```bash
+kolla-ansible mariadb_recovery -i multinode
+```
+
+执行之后，再去看容器列表，就会全部处于healthy状态了
