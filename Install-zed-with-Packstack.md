@@ -34,7 +34,7 @@ EOF
 ```bash
 systemctl disable firewalld --now
 setenforce 0
-sed -i '/^SELINUX=/SELINUX=permissive' /etc/selinux/config
+sed -i 's/^SELINUX=.*/SELINUX=permissive/' /etc/selinux/config
 ```
 
 # 部署OpenStack
