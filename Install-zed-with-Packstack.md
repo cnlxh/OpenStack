@@ -27,6 +27,7 @@ name=ops
 baseurl=file:///mnt
 enabled=1
 gpgcheck=0
+EOF
 ```
 
 # 关闭防火墙和SELINUX
