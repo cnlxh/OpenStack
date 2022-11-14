@@ -17,6 +17,7 @@ dnf config-manager --enable crb
 dnf install -y centos-release-openstack-zed
 ```
 # 准备软件（离线版）
+这里的离线版仅指在安装过程中，不再需要去外网拉取rpm包，但是还需要保持外网连接，以便于安装过程中自动下载cirros等测试资源
 下载离线包：https://pan.baidu.com/s/1uLSv5cnsC1pOmzbzNCcAnQ?pwd=8nus
 ```bash
 mount /xxx.iso /mnt
