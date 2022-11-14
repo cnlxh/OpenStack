@@ -17,7 +17,7 @@ dnf config-manager --enable crb
 dnf install -y centos-release-openstack-zed
 ```
 # 准备软件（离线版）
-下载离线包：https://pan.baidu.com/s/16O9E7ClPDDxTA-O-RwbRag?pwd=ybtb
+下载离线包：https://pan.baidu.com/s/1uLSv5cnsC1pOmzbzNCcAnQ?pwd=8nus
 ```bash
 mount /xxx.iso /mnt
 mv /etc/yum.repos.d/* /opt
