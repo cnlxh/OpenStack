@@ -2938,7 +2938,7 @@ crudini --set /etc/manila/manila.conf keystone_authtoken user_domain_name Defaul
 crudini --set /etc/manila/manila.conf keystone_authtoken project_name service
 crudini --set /etc/manila/manila.conf keystone_authtoken username manila
 crudini --set /etc/manila/manila.conf keystone_authtoken password LiXiaohui
-crudini --set /etc/manila/manila.conf oslo_concurrency lock_path /var/lock/manila
+crudini --set /etc/manila/manila.conf oslo_concurrency lock_path /var/lib/manila/tmp
 ```
 
 
@@ -2970,7 +2970,7 @@ username = manila
 password = LiXiaohui
 
 [oslo_concurrency]
-lock_path = /var/lock/manila
+lock_path = /var/lib/manila/tmp
 ```
 
 #### 填充manila数据库
@@ -3015,7 +3015,7 @@ crudini --set /etc/manila/manila.conf keystone_authtoken user_domain_name Defaul
 crudini --set /etc/manila/manila.conf keystone_authtoken project_name service
 crudini --set /etc/manila/manila.conf keystone_authtoken username manila
 crudini --set /etc/manila/manila.conf keystone_authtoken password LiXiaohui
-crudini --set /etc/manila/manila.conf oslo_concurrency lock_path /var/lock/manila
+crudini --set /etc/manila/manila.conf oslo_concurrency lock_path /var/lib/manila/tmp
 ```
 
 
