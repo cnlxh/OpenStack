@@ -2763,7 +2763,362 @@ volume_3a601d59-020c-4851-bfd6-5d983ac9627f_20240530150137_backup_c30bff9d-e4cb-
 volume_3a601d59-020c-4851-bfd6-5d983ac9627f_20240530150137_backup_c30bff9d-e4cb-4fb8-a838-0acf30b3e619_sha256file
 ```
 
+## 安装配置manila服务
 
+### 为manila准备控制节点
+
+并置在controller这台机器上
+
+#### 准备manila数据库
+
+```bash
+mysql -u root -pLiXiaohui
+```
+```bash
+CREATE DATABASE manila;
+GRANT ALL PRIVILEGES ON manila.* TO 'manila'@'localhost' IDENTIFIED BY 'LiXiaohui';
+GRANT ALL PRIVILEGES ON manila.* TO 'manila'@'%' IDENTIFIED BY 'LiXiaohui';
+exit
+```
+
+#### 创建manila服务凭据
+
+```bash
+[root@controller ~]# openstack user create --domain default --password LiXiaohui manila
++---------------------+----------------------------------+
+| Field               | Value                            |
++---------------------+----------------------------------+
+| domain_id           | default                          |
+| enabled             | True                             |
+| id                  | 4427fcb6f82d412cac8da44118c2d1b1 |
+| name                | manila                           |
+| options             | {}                               |
+| password_expires_at | None                             |
++---------------------+----------------------------------+
+[root@controller ~]# openstack role add --project service --user manila admin
+
+[root@controller ~]# openstack service create --name manila --description "OpenStack Shared File Systems" share
++-------------+----------------------------------+
+| Field       | Value                            |
++-------------+----------------------------------+
+| description | OpenStack Shared File Systems    |
+| enabled     | True                             |
+| id          | 3fc0e0b3f5404a8b8fe2e22e31c1fb97 |
+| name        | manila                           |
+| type        | share                            |
++-------------+----------------------------------+
+[root@controller ~]# openstack service create --name manilav2 --description "OpenStack Shared File Systems V2" sharev2
++-------------+----------------------------------+
+| Field       | Value                            |
++-------------+----------------------------------+
+| description | OpenStack Shared File Systems V2 |
+| enabled     | True                             |
+| id          | e41e8c69b86e4e74bba6b2c931f7d673 |
+| name        | manilav2                         |
+| type        | sharev2                          |
++-------------+----------------------------------+
+
+```
+
+#### 创建manila endpoint
+
+```bash
+[root@controller ~]# openstack endpoint create --region RegionOne share public http://controller:8786/v1/%\(tenant_id\)s
++--------------+-----------------------------------------+
+| Field        | Value                                   |
++--------------+-----------------------------------------+
+| enabled      | True                                    |
+| id           | 22a3ac8a89874f94a8c9a53a120ac165        |
+| interface    | public                                  |
+| region       | RegionOne                               |
+| region_id    | RegionOne                               |
+| service_id   | 3fc0e0b3f5404a8b8fe2e22e31c1fb97        |
+| service_name | manila                                  |
+| service_type | share                                   |
+| url          | http://controller:8786/v1/%(tenant_id)s |
++--------------+-----------------------------------------+
+[root@controller ~]# openstack endpoint create --region RegionOne share internal http://controller:8786/v1/%\(tenant_id\)s
++--------------+-----------------------------------------+
+| Field        | Value                                   |
++--------------+-----------------------------------------+
+| enabled      | True                                    |
+| id           | 385626d50d324d39873a503e6a81423c        |
+| interface    | internal                                |
+| region       | RegionOne                               |
+| region_id    | RegionOne                               |
+| service_id   | 3fc0e0b3f5404a8b8fe2e22e31c1fb97        |
+| service_name | manila                                  |
+| service_type | share                                   |
+| url          | http://controller:8786/v1/%(tenant_id)s |
++--------------+-----------------------------------------+
+[root@controller ~]# openstack endpoint create --region RegionOne share admin http://controller:8786/v1/%\(tenant_id\)s
++--------------+-----------------------------------------+
+| Field        | Value                                   |
++--------------+-----------------------------------------+
+| enabled      | True                                    |
+| id           | 28568224c35e4c5b8d533888decfbe5f        |
+| interface    | admin                                   |
+| region       | RegionOne                               |
+| region_id    | RegionOne                               |
+| service_id   | 3fc0e0b3f5404a8b8fe2e22e31c1fb97        |
+| service_name | manila                                  |
+| service_type | share                                   |
+| url          | http://controller:8786/v1/%(tenant_id)s |
++--------------+-----------------------------------------+
+[root@controller ~]# openstack endpoint create --region RegionOne sharev2 public http://controller:8786/v2
++--------------+----------------------------------+
+| Field        | Value                            |
++--------------+----------------------------------+
+| enabled      | True                             |
+| id           | 7fdf805093a24aa09a4eee27681b38c2 |
+| interface    | public                           |
+| region       | RegionOne                        |
+| region_id    | RegionOne                        |
+| service_id   | e41e8c69b86e4e74bba6b2c931f7d673 |
+| service_name | manilav2                         |
+| service_type | sharev2                          |
+| url          | http://controller:8786/v2        |
++--------------+----------------------------------+
+[root@controller ~]# openstack endpoint create --region RegionOne sharev2 internal http://controller:8786/v2
++--------------+----------------------------------+
+| Field        | Value                            |
++--------------+----------------------------------+
+| enabled      | True                             |
+| id           | 47b4ce4125294061a945e595c22770c4 |
+| interface    | internal                         |
+| region       | RegionOne                        |
+| region_id    | RegionOne                        |
+| service_id   | e41e8c69b86e4e74bba6b2c931f7d673 |
+| service_name | manilav2                         |
+| service_type | sharev2                          |
+| url          | http://controller:8786/v2        |
++--------------+----------------------------------+
+[root@controller ~]# openstack endpoint create --region RegionOne sharev2 admin http://controller:8786/v2
++--------------+----------------------------------+
+| Field        | Value                            |
++--------------+----------------------------------+
+| enabled      | True                             |
+| id           | a88c310beef743fda7d8f93cd7f44b27 |
+| interface    | admin                            |
+| region       | RegionOne                        |
+| region_id    | RegionOne                        |
+| service_id   | e41e8c69b86e4e74bba6b2c931f7d673 |
+| service_name | manilav2                         |
+| service_type | sharev2                          |
+| url          | http://controller:8786/v2        |
++--------------+----------------------------------+
+
+```
+
+#### 安装配置minila组件
+
+```bash
+yum install openstack-manila python3-manilaclient -y
+```
+
+#### 准备配置文件
+
+`/etc/manila/manila.conf` 是manila配置文件
+
+```bash
+crudini --set /etc/manila/manila.conf DEFAULT my_ip 192.168.8.10
+crudini --set /etc/manila/manila.conf DEFAULT auth_strategy keystone
+crudini --set /etc/manila/manila.conf DEFAULT default_share_type default_share_type
+crudini --set /etc/manila/manila.conf DEFAULT share_name_template share-%s
+crudini --set /etc/manila/manila.conf DEFAULT rootwrap_config /etc/manila/rootwrap.conf
+crudini --set /etc/manila/manila.conf DEFAULT api_paste_config /etc/manila/api-paste.ini
+crudini --set /etc/manila/manila.conf DEFAULT transport_url rabbit://openstack:LiXiaohui@controller
+crudini --set /etc/manila/manila.conf database connection mysql+pymysql://manila:LiXiaohui@controller/manila
+crudini --set /etc/manila/manila.conf keystone_authtoken memcached_servers controller:11211
+crudini --set /etc/manila/manila.conf keystone_authtoken www_authenticate_uri http://controller:5000
+crudini --set /etc/manila/manila.conf keystone_authtoken auth_url http://controller:5000
+crudini --set /etc/manila/manila.conf keystone_authtoken auth_type password
+crudini --set /etc/manila/manila.conf keystone_authtoken project_domain_name Default
+crudini --set /etc/manila/manila.conf keystone_authtoken user_domain_name Default
+crudini --set /etc/manila/manila.conf keystone_authtoken username manila
+crudini --set /etc/manila/manila.conf keystone_authtoken password LiXiaohui
+crudini --set /etc/manila/manila.conf oslo_concurrency lock_path /var/lock/manila
+```
+
+
+或者
+
+```ini
+[DEFAULT]
+my_ip = 192.168.8.10
+auth_strategy = keystone
+default_share_type = default_share_type
+share_name_template = share-%s
+rootwrap_config = /etc/manila/rootwrap.conf
+api_paste_config = /etc/manila/api-paste.ini
+transport_url = rabbit://openstack:LiXiaohui@controller
+
+[database]
+connection = mysql+pymysql://manila:LiXiaohui@controller/manila
+
+[keystone_authtoken]
+...
+memcached_servers = controller:11211
+www_authenticate_uri = http://controller:5000
+auth_url = http://controller:5000
+auth_type = password
+project_domain_name = Default
+user_domain_name = Default
+project_name = service
+username = manila
+password = LiXiaohui
+
+[oslo_concurrency]
+lock_path = /var/lock/manila
+```
+
+#### 填充manila数据库
+
+```bash
+su -s /bin/sh -c "manila-manage db sync" manila
+```
+
+#### 启动manila服务
+
+```bash
+systemctl enable openstack-manila-api.service openstack-manila-scheduler.service --now
+```
+
+### 安装配置manila共享节点
+
+并置在controller上
+
+#### 安装配置相应软件
+
+```bash
+yum install openstack-manila-share python3-PyMySQL -y
+```
+
+#### 准备配置文件
+
+`/etc/manila/manila.conf`是manila的配置文件
+
+```bash
+crudini --set /etc/manila/manila.conf DEFAULT my_ip 192.168.8.10
+crudini --set /etc/manila/manila.conf DEFAULT auth_strategy keystone
+crudini --set /etc/manila/manila.conf DEFAULT default_share_type default_share_type
+crudini --set /etc/manila/manila.conf DEFAULT rootwrap_config /etc/manila/rootwrap.conf
+crudini --set /etc/manila/manila.conf DEFAULT transport_url rabbit://openstack:LiXiaohui@controller
+crudini --set /etc/manila/manila.conf database connection mysql+pymysql://manila:LiXiaohui@controller/manila
+crudini --set /etc/manila/manila.conf keystone_authtoken memcached_servers controller:11211
+crudini --set /etc/manila/manila.conf keystone_authtoken www_authenticate_uri http://controller:5000
+crudini --set /etc/manila/manila.conf keystone_authtoken auth_url http://controller:5000
+crudini --set /etc/manila/manila.conf keystone_authtoken auth_type password
+crudini --set /etc/manila/manila.conf keystone_authtoken project_domain_name Default
+crudini --set /etc/manila/manila.conf keystone_authtoken user_domain_name Default
+crudini --set /etc/manila/manila.conf keystone_authtoken username manila
+crudini --set /etc/manila/manila.conf keystone_authtoken password LiXiaohui
+crudini --set /etc/manila/manila.conf oslo_concurrency lock_path /var/lock/manila
+```
+
+
+或
+
+```ini
+[DEFAULT]
+auth_strategy = keystone
+my_ip = 192.168.8.10
+default_share_type = default_share_type
+rootwrap_config = /etc/manila/rootwrap.conf
+transport_url = rabbit://openstack:LiXiaohui@controller
+
+[database]
+connection = mysql+pymysql://manila:LiXiaohui@controller/manila
+
+[keystone_authtoken]
+memcached_servers = controller:11211
+www_authenticate_uri = http://controller:5000
+auth_url = http://controller:5000
+auth_type = password
+project_domain_name = Default
+user_domain_name = Default
+project_name = service
+username = manila
+password = LiXiaohui
+
+[oslo_concurrency]
+lock_path = /var/lib/manila/tmp
+```
+
+#### manila 驱动模式说明
+
+共享节点（Share Node）可以支持两种模式，即带有共享服务器处理和不带共享服务器处理。这两种模式的选择取决于所使用的驱动程序是否支持。
+
+共享节点可以根据所使用的驱动程序的支持情况，在两种不同的模式下运行。
+
+1. **带有共享服务器处理**：在这种模式下，共享节点负责创建和管理共享服务器实例，每个共享都有一个独立的服务器实例来处理共享存储的访问和管理。这种模式通常用于需要对外提供服务的场景，需要为每个共享创建独立的服务器实例。
+
+2. **不带有共享服务器处理**：在这种模式下，共享节点不会为每个共享创建单独的服务器实例，而是直接在存储后端上创建共享文件系统。这种模式通常用于简单的部署场景或私有云环境，不需要为每个共享创建独立的服务器实例。
+
+#### 部署本地驱动模式的manila
+
+需要注意的是，我们这里默认采用了LVM，而且单独给controller又添加了一个硬盘，注意不要复用cinder服务的硬盘
+
+##### 安装相应软件并启动服务
+
+```bash
+yum install lvm2 nfs-utils nfs4-acl-tools portmap targetcli -y
+systemctl enable target.service --now
+```
+
+##### 准备后端存储
+
+我新添加的硬盘是**/dev/nvme0n3**
+
+```bash
+pvcreate /dev/nvme0n3
+vgcreate manila-volumes /dev/nvme0n3
+```
+
+屏蔽lvm扫描其他设备
+
+/etc/lvm/lvm.conf中修改
+
+```ini
+devices {
+filter = [ "a/nvme/","r/.*/"]
+```
+
+##### 准备配置文件
+
+`/etc/manila/manila.conf`是manila的配置文件
+
+```bash
+crudini --set /etc/manila/manila.conf DEFAULT enabled_share_backends lvm
+crudini --set /etc/manila/manila.conf DEFAULT enabled_share_protocols NFS
+crudini --set /etc/manila/manila.conf lvm share_backend_name LVM
+crudini --set /etc/manila/manila.conf lvm share_driver manila.share.drivers.lvm.LVMShareDriver
+crudini --set /etc/manila/manila.conf lvm driver_handles_share_servers False
+crudini --set /etc/manila/manila.conf lvm lvm_share_volume_group manila-volumes
+crudini --set /etc/manila/manila.conf lvm lvm_share_export_ips 192.168.8.10
+```
+
+
+或者
+
+```bash
+[DEFAULT]
+enabled_share_backends = lvm
+enabled_share_protocols = NFS
+
+[lvm]
+share_backend_name = LVM
+share_driver = manila.share.drivers.lvm.LVMShareDriver
+driver_handles_share_servers = False
+lvm_share_volume_group = manila-volumes
+lvm_share_export_ips = 192.168.8.10
+```
+
+##### 启动manila共享服务
+
+```bash
+systemctl enable openstack-manila-share.service openstack-manila-data.service --now
+```
 
 ## 安装配置horizon服务
 
