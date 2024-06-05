@@ -2935,6 +2935,7 @@ crudini --set /etc/manila/manila.conf keystone_authtoken auth_url http://control
 crudini --set /etc/manila/manila.conf keystone_authtoken auth_type password
 crudini --set /etc/manila/manila.conf keystone_authtoken project_domain_name Default
 crudini --set /etc/manila/manila.conf keystone_authtoken user_domain_name Default
+crudini --set /etc/manila/manila.conf keystone_authtoken project_name service
 crudini --set /etc/manila/manila.conf keystone_authtoken username manila
 crudini --set /etc/manila/manila.conf keystone_authtoken password LiXiaohui
 crudini --set /etc/manila/manila.conf oslo_concurrency lock_path /var/lock/manila
