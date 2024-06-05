@@ -3119,7 +3119,7 @@ lvm_share_export_ips = 192.168.8.10
 ##### 启动manila共享服务
 
 ```bash
-systemctl enable openstack-manila-share.service openstack-manila-data.service --now
+systemctl enable openstack-manila-share.service openstack-manila-data.service nfs-server.service --now
 ```
 
 ## 安装配置horizon服务
